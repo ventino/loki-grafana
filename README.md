@@ -35,7 +35,7 @@ terraform init
 terraform plan
 terraform apply
 ```
-this should create automatically an VM called devmachine, which can be accessed over ssh:
+this should create automatically an VM called loki-grafana, which can be accessed over ssh:
 
 ```
 ssh -q sysop@loki-grafana
