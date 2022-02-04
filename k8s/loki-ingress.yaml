@@ -1,0 +1,36 @@
+# https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: loki_basic_secret
+  namespace: loki-stack
+data:
+  auth: bG9raTokYXByMSRWNFhnWER0ZSRDN2Q2TFlIMFp0ZmRZT3NIMG9uMGIxCgo=
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: loki-tls
+  namespace: loki-stack
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/auth-type: "basic"
+    ingress.kubernetes.io/auth-secret: loki_basic_secret 
+spec:
+  tls:
+  - hosts:
+      - loki-grafana
+    secretName: loki-tls
+  rules:
+  - host: loki-grafana
+    http:
+      paths:
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: loki
+            port:
+              number: 3100

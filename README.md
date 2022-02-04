@@ -1,6 +1,6 @@
 
 
-This is a generic VM module, docker enabled, which needs a file called terraform.tfvars to be filled.
+This is an loki stack installed on microk8s.
 
 ## Prerequisites:
 
@@ -21,9 +21,10 @@ Nice to have, but not mandatory, would be to allocate from router a fixed IP add
 ## Example tfvars:
 
 ```
-hostname = "devmachine"
-cloud_image = "/home/sysop/Downloads/groovy-server-cloudimg-amd64.img"
-mac_address = "AA:BB:CC:11:24:24"
+hostname    = "loki-grafana"
+cloud_image = "/home/mihai/images/hirsute-server-cloudimg-amd64.img"
+dev_ssh_id  = "gh:mihaics"
+os_user     = "sysop"
 ```
 
 ## Usage: 
@@ -37,45 +38,8 @@ terraform apply
 this should create automatically an VM called devmachine, which can be accessed over ssh:
 
 ```
-ssh -q bitwarpers@devmachine
+ssh -q sysop@loki-grafana
 ```
 
 
-
-## Example script to access the kubernetes dashboard:
-
-```
- 
-cat <<EOF | microk8s kubectl apply -f -
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: admin-user
-  namespace: kube-system
-EOF
-
-
-cat <<EOF | microk8s kubectl apply -f -
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: admin-user
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: admin-user
-  namespace: kube-system
-EOF
-
-
-
-
-microk8s kubectl -n kube-system get secret $(microk8s kubectl -n kube-system get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}";echo 
-
-
-microk8s kubectl port-forward -n kube-system service/kubernetes-dashboard --address 0.0.0.0 10443:443
-```
 
