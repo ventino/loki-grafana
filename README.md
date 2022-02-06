@@ -42,4 +42,29 @@ ssh -q sysop@loki-grafana
 ```
 
 
+To locally install minio for tests:
+
+```
+helm repo add minio https://charts.min.io/
+helm repo update
+helm --kubeconfig $HOME/.kube/config upgrade --install minio minio/minio --set accessKey=loki,secretKey=lokisecret,persistence.storageClass=openebs-hostpath,mode=standalone,replicas=1,resources.requests.memory=500Mi --namespace minio --create-namespace
+
+```
+
+To access MinIO from localhost, run the below commands:
+
+  1. export POD_NAME=$(kubectl get pods --namespace minio -l "release=minio" -o jsonpath="{.items[0].metadata.name}")
+
+  2. kubectl port-forward $POD_NAME 9000 --namespace minio
+
+Read more about port forwarding here: http://kubernetes.io/docs/user-guide/kubectl/kubectl_port-forward/
+
+You can now access MinIO server on http://localhost:9000. Follow the below steps to connect to MinIO server with mc client:
+
+  1. Download the MinIO mc client - https://docs.minio.io/docs/minio-client-quickstart-guide
+
+  2. export MC_HOST_minio_local=http://$(kubectl get secret --namespace minio minio -o jsonpath="{.data.rootUser}" | base64 --decode):$(kubectl get secret --namespace minio minio -o jsonpath="{.data.rootPassword}" | base64 --decode)@localhost:9000
+
+  3. mc ls minio_local://
+
 
