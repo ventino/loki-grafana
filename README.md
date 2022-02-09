@@ -68,3 +68,15 @@ You can now access MinIO server on http://localhost:9000. Follow the below steps
   3. mc ls minio_local://
 
 
+TODO: minio accessKey and accessSecret does not work from deployment
+
+```
+helm upgrade --install loki --namespace=loki grafana/loki --create-namespace -f values.yaml
+```
+
+
+Test loki:
+
+```
+curl http://loki-grafana.192.168.122.100.nip.io/loki/api/v1/labels
+```
